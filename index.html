@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GiftSwap | Professional Central Hub</title>
+    <title>GiftSwap | Personalized Secret Santa</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #FCFAFA; --card: #FFFFFF; --text: #2D2D2D; --primary: #D0312D; --secondary: #1A3C34; --border: #E5E5E5; --input-bg: #FFFFFF; --header-text: #888; }
@@ -25,17 +25,17 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         
-        .table-header { display: grid; grid-template-columns: 1.5fr 1.5fr 2.5fr 0.5fr; gap: 15px; margin-bottom: 15px; font-weight: 600; color: var(--header-text); font-size: 0.8rem; text-transform: uppercase; }
-        .p-row { display: grid; grid-template-columns: 1.5fr 1.5fr 2.5fr 0.5fr; gap: 15px; margin-bottom: 15px; align-items: start; }
+        .table-header { display: grid; grid-template-columns: 1fr 1fr 1.5fr 1fr 0.3fr; gap: 10px; margin-bottom: 15px; font-weight: 600; color: var(--header-text); font-size: 0.8rem; text-transform: uppercase; }
+        .p-row { display: grid; grid-template-columns: 1fr 1fr 1.5fr 1fr 0.3fr; gap: 10px; margin-bottom: 15px; align-items: start; }
         input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); }
         
         .exclusion-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; max-height: 120px; overflow-y: auto; }
-        .exclusion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; }
+        .exclusion-grid { display: grid; grid-template-columns: 1fr; gap: 5px; font-size: 0.8rem; }
 
         .hub-card { background: var(--card); border: 2px solid var(--primary); border-radius: 30px; padding: 40px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
         .hub-item { background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
         .reveal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .reveal-box { background: var(--card); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; }
+        .reveal-box { background: var(--card); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 450px; }
         footer { padding: 20px; text-align: center; font-size: 0.8rem; opacity: 0.5; margin-top: auto; border-top: 1px solid var(--border); }
     </style>
 </head>
@@ -54,8 +54,8 @@
     <main>
         <section id="homeSection" class="active-section">
             <div style="text-align:center; margin-bottom:40px;">
-                <h1>Your <span style="color:var(--primary)">Secret Santa</span> Dashboard</h1>
-                <button class="btn btn-primary" onclick="app.createGroup()" style="margin-top:20px;">+ New Exchange</button>
+                <h1>Professional <span style="color:var(--primary)">Secret Santa</span> Hub</h1>
+                <button class="btn btn-primary" onclick="app.createGroup()" style="margin-top:20px;">+ Create New Exchange</button>
             </div>
             <div id="groupsGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:20px;"></div>
         </section>
@@ -69,7 +69,7 @@
             </div>
             
             <div class="table-header">
-                <div>Name</div><div>Email/Ref</div><div>Don't Pick...</div><div></div>
+                <div>Name</div><div>Wishlist (Optional)</div><div>Don't Pick...</div><div>Contact Info</div><div></div>
             </div>
             <div id="rowsContainer"></div>
             
@@ -82,7 +82,7 @@
         <section id="hubSection">
             <div class="hub-card">
                 <h2 id="hubGroupName" style="font-family:'Mountains of Christmas'; font-size:2.3rem; color:var(--primary);">Group Name</h2>
-                <p style="margin-bottom:10px;">Click your name to see your match!</p>
+                <p style="margin-bottom:10px;">Click your name to reveal your match!</p>
                 <p>Budget: <strong id="hubBudget"></strong></p>
                 <div id="hubList" style="margin-top:30px; text-align:left;"></div>
             </div>
@@ -93,17 +93,22 @@
         <div class="reveal-box">
             <h3>Hi <span id="revGiver"></span>!</h3>
             <p style="margin:10px 0;">You are buying for:</p>
-            <h1 id="revReceiver" style="color:var(--primary); font-family:'Mountains of Christmas'; font-size:2.5rem; margin-bottom:20px;"></h1>
-            <a href="#" id="amzBtn" target="_blank" style="display:inline-block; background:#FF9900; padding:12px 24px; border-radius:10px; color:black; font-weight:bold; text-decoration:none; margin-bottom:20px;">Find Gift Ideas</a>
+            <h1 id="revReceiver" style="color:var(--primary); font-family:'Mountains of Christmas'; font-size:2.5rem; margin-bottom:10px;"></h1>
+            
+            <div id="wishlistDisplay" style="margin-bottom:20px; font-style:italic; color:var(--secondary);">
+                "They said they'd like: <span id="revWishlist"></span>"
+            </div>
+
+            <a href="#" id="amzBtn" target="_blank" style="display:inline-block; background:#FF9900; padding:12px 24px; border-radius:10px; color:black; font-weight:bold; text-decoration:none; margin-bottom:20px;">Shop Personalized Ideas</a>
             <br><button class="btn btn-outline" onclick="document.getElementById('revealOverlay').style.display='none'">Close</button>
         </div>
     </div>
 
-    <footer>&copy; 2026 GiftSwap • St. Bonaventure University</footer>
+    <footer>&copy; 2026 GiftSwap • Saint Bonaventure University</footer>
 
 <script>
     const app = {
-        data: JSON.parse(localStorage.getItem('giftSwap_HubDB')) || {},
+        data: JSON.parse(localStorage.getItem('giftSwap_HubV19')) || {},
         activeId: null,
 
         init: function() {
@@ -123,7 +128,7 @@
 
         createGroup: function() {
             const id = 'g' + Date.now();
-            this.data[id] = { name: "", budget: "", participants: [{name:"", email:"", exclusions:[]},{name:"", email:"", exclusions:[]},{name:"", email:"", exclusions:[]}] };
+            this.data[id] = { name: "", budget: "", participants: [{name:"", wish:"", email:"", exclusions:[]},{name:"", wish:"", email:"", exclusions:[]},{name:"", wish:"", email:"", exclusions:[]}] };
             this.activeId = id; this.loadEditor();
         },
 
@@ -138,7 +143,6 @@
             const grid = document.getElementById('groupsGrid'); grid.innerHTML = "";
             Object.keys(this.data).forEach(id => {
                 const c = document.createElement('div'); c.className = 'group-card';
-                c.style.cssText = "background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border); cursor:pointer;";
                 c.innerHTML = `<h3>${this.data[id].name || "Untitled"}</h3><p>${this.data[id].participants.length} members</p>`;
                 c.onclick = () => { this.activeId = id; this.loadEditor(); };
                 grid.appendChild(c);
@@ -151,10 +155,11 @@
             pp.forEach((p, i) => {
                 const r = document.createElement('div'); r.className = 'p-row';
                 r.innerHTML = `
-                    <input type="text" value="${p.name}" placeholder="Name" oninput="app.updateP(${i}, 'name', this.value)" onblur="app.renderRows()">
-                    <input type="text" value="${p.email}" placeholder="Email/Ref" oninput="app.updateP(${i}, 'email', this.value)">
+                    <input type="text" value="${p.name || ''}" placeholder="Name" oninput="app.updateP(${i}, 'name', this.value)">
+                    <input type="text" value="${p.wish || ''}" placeholder="e.g. Tennis, Books" oninput="app.updateP(${i}, 'wish', this.value)">
                     <div class="exclusion-box" id="ex-${i}"></div>
-                    <button class="btn-outline" style="border-radius:8px;" onclick="app.data['${this.activeId}'].participants.splice(${i},1); app.renderRows();">×</button>`;
+                    <input type="text" value="${p.email || ''}" placeholder="Email/Phone" oninput="app.updateP(${i}, 'email', this.value)">
+                    <button class="btn-outline" style="border-radius:8px; width:40px;" onclick="app.data['${this.activeId}'].participants.splice(${i},1); app.renderRows();">×</button>`;
                 c.appendChild(r);
                 this.renderEx(i);
             });
@@ -172,7 +177,7 @@
             const pp = this.data[this.activeId].participants;
             let html = '<div class="exclusion-grid">';
             pp.forEach((other, j) => {
-                if (idx !== j && other.name.trim()) {
+                if (idx !== j && other.name && other.name.trim()) {
                     const checked = pp[idx].exclusions.includes(other.name) ? 'checked' : '';
                     html += `<label><input type="checkbox" ${checked} onchange="app.toggleEx(${idx}, '${other.name}')"> ${other.name}</label>`;
                 }
@@ -187,33 +192,30 @@
             this.save();
         },
 
-        addPerson: function() { this.data[this.activeId].participants.push({name:"", email:"", exclusions:[]}); this.renderRows(); },
+        addPerson: function() { this.data[this.activeId].participants.push({name:"", wish:"", email:"", exclusions:[]}); this.renderRows(); },
 
         generateMasterHub: function() {
-            // Sync Meta Data one last time
             this.data[this.activeId].name = document.getElementById('groupName').value;
             this.data[this.activeId].budget = document.getElementById('groupBudget').value;
             
             const group = this.data[this.activeId];
-            const pp = group.participants.filter(p => p.name.trim());
+            const pp = group.participants.filter(p => p.name && p.name.trim());
             if (pp.length < 3) return alert("Min 3 names required!");
 
             let g = [...pp], r = [...pp], valid = false, att = 0;
-            while(!valid && att < 2000) {
+            while(!valid && att < 3000) {
                 att++; r.sort(() => Math.random() - 0.5);
                 valid = g.every((v, i) => v.name !== r[i].name && !v.exclusions.includes(r[i].name));
             }
             if(!valid) return alert("Conflicts! Uncheck some boxes.");
 
             const payload = btoa(unescape(encodeURIComponent(JSON.stringify({
-                n: group.name, b: group.budget, m: g.map((v, i) => ({ g: v.name, r: r[i].name }))
+                n: group.name, b: group.budget, m: g.map((v, i) => ({ g: v.name, r: r[i].name, w: r[i].wish }))
             }))));
 
             const hubUrl = window.location.origin + window.location.pathname + "?hub=" + payload;
             navigator.clipboard.writeText(hubUrl);
-            alert("Hub Link Copied! Opening in new tab in 1.5 seconds...");
-            
-            // DELAYED OPENING
+            alert("Hub Link Copied! Opening in 1.5s...");
             setTimeout(() => { window.open(hubUrl, '_blank'); }, 1500);
         },
 
@@ -229,14 +231,19 @@
                 item.onclick = () => {
                     document.getElementById('revGiver').innerText = match.g;
                     document.getElementById('revReceiver').innerText = match.r;
-                    document.getElementById('amzBtn').href = `https://www.amazon.com/s?k=gifts+under+${encodeURIComponent(data.b || '25')}`;
+                    
+                    const wishlist = match.w ? match.w : "Nothing specific yet!";
+                    document.getElementById('revWishlist').innerText = wishlist;
+                    
+                    const searchQuery = encodeURIComponent(`${wishlist} gifts under ${data.b || '25'}`);
+                    document.getElementById('amzBtn').href = `https://www.amazon.com/s?k=${searchQuery}`;
                     document.getElementById('revealOverlay').style.display = 'flex';
                 };
                 list.appendChild(item);
             });
         },
 
-        save: function() { localStorage.setItem('giftSwap_HubDB', JSON.stringify(this.data)); }
+        save: function() { localStorage.setItem('giftSwap_HubV19', JSON.stringify(this.data)); }
     };
     window.onload = () => app.init();
 </script>
