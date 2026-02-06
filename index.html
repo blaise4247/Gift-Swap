@@ -6,7 +6,6 @@
     <title>GiftSwap | Professional Secret Santa</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* --- 1. THEMES & CSS VARIABLES --- */
         :root {
             --bg: #FCFAFA; --card: #FFFFFF; --text: #2D2D2D;
             --primary: #D0312D; --secondary: #1A3C34; --accent: #F7E7CE;
@@ -19,8 +18,8 @@
         }
         [data-theme="tropical"] {
             --bg: #E0F7FA; --card: #FFFFFF; --text: #006064;
-            --primary: #FF7043; --secondary: #009688; --accent: #FFECB3;
-            --border: #B2DFDB; --input-bg: #FFFFFF; --header-text: #00796B;
+            --primary: #FF7043; --secondary: #009688; --border: #B2DFDB;
+            --input-bg: #FFFFFF; --header-text: #00796B;
         }
         [data-theme="winter"] {
             --bg: #ECEFF1; --card: #FFFFFF; --text: #263238;
@@ -28,11 +27,9 @@
             --border: #CFD8DC; --input-bg: #FAFAFA; --header-text: #78909C;
         }
 
-        /* --- 2. GLOBAL STYLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s; min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; min-height: 100vh; display: flex; flex-direction: column; }
         
-        /* --- 3. NAVIGATION --- */
         nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Mountains of Christmas', cursive; font-size: 1.8rem; color: var(--primary); cursor: pointer; }
         .nav-links { display: flex; gap: 20px; align-items: center; }
@@ -40,13 +37,11 @@
         .nav-item:hover { opacity: 1; color: var(--primary); }
         .theme-select { padding: 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); cursor: pointer; }
 
-        /* --- 4. LAYOUT --- */
         main { flex: 1; padding: 40px 5%; max-width: 1200px; margin: 0 auto; width: 100%; }
-        section { display: none; animation: fadeIn 0.4s ease-out; }
-        .active-section { display: block !important; }
+        section { display: none; }
+        .active-section { display: block !important; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 5. COMPONENTS --- */
         .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
         .group-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 16px; position: relative; cursor: pointer; transition: 0.2s; }
         .group-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
@@ -67,10 +62,273 @@
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-remove { background: rgba(255,0,0,0.1); color: #ff4444; padding: 10px; border-radius: 8px; height: 44px; width: 44px; display: flex; align-items: center; justify-content: center; }
 
-        /* Text Pages */
-        .text-page { max-width: 800px; margin: 0 auto; line-height: 1.8; }
-        .text-page h2 { color: var(--secondary); margin-bottom: 20px; }
-
-        /* Reveal Card */
         .reveal-card { background: var(--card); border: 2px solid var(--primary); border-radius: 30px; padding: 60px 30px; text-align: center; max-width: 600px; margin: 40px auto; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
-        .reveal-name { font-size: 3.5rem; color
+        .reveal-name { font-size: 3.5rem; color: var(--secondary); font-family: 'Mountains of Christmas'; margin: 20px 0; line-height: 1.2; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-content { background: var(--card); width: 90%; max-width: 600px; padding: 40px; border-radius: 20px; text-align: center; max-height: 85vh; overflow-y: auto; }
+        .link-row, .master-row { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+
+        footer { background: var(--bg); padding: 30px; text-align: center; border-top: 1px solid var(--border); margin-top: auto; }
+        .footer-link { cursor: pointer; font-size: 0.85rem; opacity: 0.6; text-decoration: underline; margin: 0 10px; }
+
+        @media (max-width: 768px) { .table-header { display: none; } .p-row { grid-template-columns: 1fr; gap: 10px; } }
+    </style>
+</head>
+<body data-theme="santa">
+
+    <nav id="siteNav">
+        <div class="logo" onclick="app.navigate('home')">GiftSwap</div>
+        <div class="nav-links">
+            <div class="nav-item" onclick="app.navigate('home')">Home</div>
+            <div class="nav-item" onclick="app.navigate('about')">About</div>
+            <div class="nav-item" onclick="app.navigate('help')">Help</div>
+            <select class="theme-select" id="themeSelector" onchange="app.setTheme(this.value)">
+                <option value="santa">🎅 Santa</option>
+                <option value="dark-santa">🌙 Dark</option>
+                <option value="tropical">🏝️ Tropical</option>
+                <option value="winter">❄️ Winter</option>
+            </select>
+        </div>
+    </nav>
+
+    <main>
+        <section id="homeSection" class="active-section">
+            <div style="text-align: center; margin-bottom: 50px;">
+                <h1 style="font-size: 3rem; color: var(--secondary);">Stress-Free <span style="color:var(--primary)">Secret Santa</span></h1>
+                <p style="opacity:0.7; margin-bottom:20px;">Built for friends, families, and office parties.</p>
+                <button class="btn btn-primary" onclick="app.createGroup()">+ Create New Group</button>
+            </div>
+            <div id="groupsGrid" class="groups-grid"></div>
+        </section>
+
+        <section id="editorSection">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <button class="btn btn-outline" onclick="app.navigate('home')">← Dashboard</button>
+                <button class="btn btn-outline" onclick="app.showMasterList()" style="border-color:var(--secondary); color:var(--secondary);">📜 Admin Master List</button>
+            </div>
+            <input type="text" id="groupName" class="group-name-input" placeholder="Untitled Group" oninput="app.updateMeta('name', this.value)">
+            <div style="margin-bottom: 30px;">
+                <span style="font-weight:600; color:var(--primary);">Budget:</span>
+                <input type="text" id="groupBudget" style="width:150px; border:none; border-bottom:2px solid var(--border); background:transparent; font-size:1.1rem;" placeholder="e.g. $25" oninput="app.updateMeta('budget', this.value)">
+            </div>
+            <div class="table-header">
+                <div>Name</div>
+                <div>Email / Phone</div>
+                <div>Exclusions (Don't Pick...)</div>
+                <div></div>
+            </div>
+            <div id="rowsContainer"></div>
+            <div style="margin-top: 30px; display: flex; gap: 15px;">
+                <button class="btn btn-outline" onclick="app.addPerson()">+ Add Person</button>
+                <button class="btn btn-primary" style="flex-grow: 1;" onclick="app.generateLinks()">Generate Shareable Links</button>
+            </div>
+        </section>
+
+        <section id="revealSection">
+            <div class="reveal-card">
+                <div style="font-size: 4rem;">🎁</div>
+                <h3 id="revGroup">Group</h3>
+                <p>Hi <strong id="revGiver">Name</strong>! Your Secret Santa assignment is:</p>
+                <div id="revTarget" class="reveal-name">???</div>
+                <p style="font-size:1.2rem;">Budget: <strong id="revBudget" style="color:var(--primary);">$0</strong></p>
+                <a href="https://www.amazon.com" id="amzLink" target="_blank" style="display:inline-block; background:#FF9900; padding:15px 30px; border-radius:10px; color:black; font-weight:bold; margin-top:30px; text-decoration:none;">Find Gifts on Amazon</a>
+                <div style="margin-top:30px; font-size:0.85rem; opacity:0.6;">Also in group: <span id="revOthers"></span></div>
+            </div>
+        </section>
+
+        <section id="aboutSection" class="text-page">
+            <h2>About GiftSwap</h2>
+            <p>GiftSwap is a privacy-first Secret Santa tool. Everything is handled via URL encoding and local storage.</p>
+        </section>
+        <section id="helpSection" class="text-page">
+            <h2>Need Help?</h2>
+            <p>1. Create a group.<br>2. Add names and exclusions.<br>3. Generate and share links.</p>
+        </section>
+        <section id="privacySection" class="text-page"><h2>Privacy Policy</h2><p>Data stays on your device.</p></section>
+        <section id="termsSection" class="text-page"><h2>Terms of Service</h2><p>Use for fun.</p></section>
+    </main>
+
+    <footer>
+        <span class="footer-link" onclick="app.navigate('privacy')">Privacy Policy</span>
+        <span class="footer-link" onclick="app.navigate('terms')">Terms of Service</span>
+        <div style="margin-top: 10px; font-size: 0.8rem; opacity: 0.4;">&copy; 2026 GiftSwap</div>
+    </footer>
+
+    <div class="modal-overlay" id="linksModal">
+        <div class="modal-content">
+            <h2 style="color:var(--primary); margin-bottom:15px;">Links Ready!</h2>
+            <div id="linksList"></div>
+            <button class="btn btn-outline" style="width:100%; margin-top:20px;" onclick="document.getElementById('linksModal').style.display='none'">Done</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="masterModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:20px;">Admin Master List</h2>
+            <div id="masterList"></div>
+            <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="document.getElementById('masterModal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+<script>
+    // --- SAFE DATA LOADING ---
+    let initialData = {};
+    try {
+        const stored = localStorage.getItem('giftSwapDB_v16');
+        if (stored) initialData = JSON.parse(stored);
+    } catch (e) {
+        console.warn("Corrupted data found. Starting fresh.");
+        localStorage.removeItem('giftSwapDB_v16');
+    }
+
+    const app = {
+        data: initialData,
+        activeId: null,
+
+        init: function() {
+            const savedT = localStorage.getItem('theme');
+            if (savedT) this.setTheme(savedT);
+            
+            const params = new URLSearchParams(window.location.search);
+            const draw = params.get('draw');
+            if (draw) this.handleReveal(draw);
+            else { this.renderHome(); this.navigate('home'); }
+        },
+
+        navigate: function(p) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
+            const target = document.getElementById(p + 'Section');
+            if (target) target.classList.add('active-section');
+            if (p === 'home') this.renderHome();
+            window.scrollTo(0,0);
+        },
+
+        setTheme: function(t) { 
+            document.body.setAttribute('data-theme', t); 
+            localStorage.setItem('theme', t);
+            if(document.getElementById('themeSelector')) document.getElementById('themeSelector').value = t;
+        },
+
+        createGroup: function() {
+            const id = 'g' + Date.now();
+            this.data[id] = { name: "", budget: "", matches: null, participants: [{name:"", email:"", exclusions:[]},{name:"", email:"", exclusions:[]},{name:"", email:"", exclusions:[]}] };
+            this.activeId = id; 
+            this.navigate('editor'); 
+            this.renderRows();
+            this.save();
+        },
+
+        renderHome: function() {
+            const grid = document.getElementById('groupsGrid'); if(!grid) return;
+            grid.innerHTML = "";
+            const keys = Object.keys(this.data);
+            if(keys.length === 0) grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; opacity:0.5;'>No groups yet.</p>";
+            keys.forEach(id => {
+                const card = document.createElement('div'); card.className = 'group-card';
+                card.innerHTML = `<div class="delete-btn" onclick="app.deleteGroup(event, '${id}')">×</div>
+                                  <h3>${this.data[id].name || "Untitled Group"}</h3>
+                                  <p style="font-size:0.9rem; opacity:0.6;">${this.data[id].participants.length} Members</p>`;
+                card.onclick = () => { this.activeId = id; this.navigate('editor'); this.renderRows(); };
+                grid.appendChild(card);
+            });
+        },
+
+        deleteGroup: function(e, id) { e.stopPropagation(); if(confirm("Delete this group?")) { delete this.data[id]; this.save(); this.renderHome(); } },
+
+        renderRows: function() {
+            const c = document.getElementById('rowsContainer'); if(!c) return;
+            c.innerHTML = "";
+            const pp = this.data[this.activeId].participants;
+            pp.forEach((p, i) => {
+                const r = document.createElement('div'); r.className = 'p-row';
+                r.innerHTML = `<input type="text" value="${p.name}" placeholder="Name" oninput="app.data['${this.activeId}'].participants[${i}].name = this.value; app.save();" onblur="app.renderExOnly()">
+                               <input type="text" value="${p.email}" placeholder="Email/Phone" oninput="app.data['${this.activeId}'].participants[${i}].email = this.value; app.save();">
+                               <div class="exclusion-box" id="ex-${i}"></div>
+                               <button class="btn btn-remove" onclick="app.data['${this.activeId}'].participants.splice(${i},1); app.renderRows(); app.save();">×</button>`;
+                c.appendChild(r);
+            });
+            this.renderExOnly();
+        },
+
+        renderExOnly: function() {
+            const pp = this.data[this.activeId].participants;
+            pp.forEach((p, i) => {
+                const box = document.getElementById(`ex-${i}`); if(!box) return;
+                let html = '<div class="exclusion-grid">';
+                pp.forEach((other, j) => {
+                    if (i !== j && other.name.trim()) {
+                        const checked = p.exclusions.includes(other.name) ? 'checked' : '';
+                        html += `<label class="exclusion-item"><input type="checkbox" ${checked} onchange="app.toggleEx(${i}, '${other.name}')"> <span>${other.name}</span></label>`;
+                    }
+                });
+                box.innerHTML = html + '</div>';
+            });
+        },
+
+        toggleEx: function(i, n) {
+            const p = this.data[this.activeId].participants[i];
+            if (p.exclusions.includes(n)) p.exclusions = p.exclusions.filter(ex => ex !== n);
+            else p.exclusions.push(n);
+            this.save();
+        },
+
+        generateLinks: function() {
+            const pp = this.data[this.activeId].participants.filter(p => p.name.trim());
+            if (pp.length < 3) return alert("Min 3 people!");
+            let g = [...pp], r = [...pp], valid = false, att = 0;
+            while(!valid && att < 2000) {
+                att++; r.sort(() => Math.random() - 0.5);
+                valid = g.every((v, i) => v.name !== r[i].name && !v.exclusions.includes(r[i].name));
+            }
+            if(!valid) return alert("Exclusion conflict!");
+            this.data[this.activeId].matches = g.map((v, i) => ({ giver: v.name, receiver: r[i].name }));
+            this.save();
+            const list = document.getElementById('linksList'); list.innerHTML = "";
+            const currentTheme = document.body.getAttribute('data-theme') || 'santa';
+            g.forEach((v, i) => {
+                const payload = btoa(unescape(encodeURIComponent(JSON.stringify({
+                    g:this.data[this.activeId].name, b:this.data[this.activeId].budget, s:v.name, t:r[i].name, 
+                    o:g.map(p=>p.name).filter(n=>n!==v.name), th: currentTheme
+                }))));
+                const url = window.location.origin + window.location.pathname + "?draw=" + payload;
+                list.innerHTML += `<div class="link-row"><strong>${v.name}</strong><button class="btn btn-outline" style="padding:6px 12px; font-size:0.8rem;" onclick="navigator.clipboard.writeText('${url}'); this.innerText='Copied!'">Copy</button></div>`;
+            });
+            document.getElementById('linksModal').style.display = 'flex';
+        },
+
+        showMasterList: function() {
+            const group = this.data[this.activeId];
+            if (!group.matches) return alert("Generate links first!");
+            const list = document.getElementById('masterList'); list.innerHTML = "";
+            group.matches.forEach(m => {
+                list.innerHTML += `<div class="master-row"><strong>${m.giver}</strong> <span>➡️</span> <strong>${m.receiver}</strong></div>`;
+            });
+            document.getElementById('masterModal').style.display = 'flex';
+        },
+
+        handleReveal: function(draw) {
+            try {
+                const d = JSON.parse(decodeURIComponent(escape(atob(draw))));
+                if(d.th) this.setTheme(d.th);
+                document.querySelector('nav').style.display = 'none';
+                document.querySelector('footer').style.display = 'none';
+                document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
+                document.getElementById('revealSection').classList.add('active-section');
+                document.getElementById('revGroup').innerText = d.g;
+                document.getElementById('revGiver').innerText = d.s;
+                document.getElementById('revTarget').innerText = d.t;
+                document.getElementById('revBudget').innerText = d.b || "No Budget";
+                if(document.getElementById('revOthers')) document.getElementById('revOthers').innerText = d.o.join(", ");
+                document.getElementById('amzLink').href = `https://www.amazon.com/s?k=${encodeURIComponent('gifts for ' + (d.b || 'Secret Santa'))}`;
+            } catch(e) { this.navigate('home'); }
+        },
+
+        updateMeta: function(f, v) { this.data[this.activeId][f] = v; this.save(); },
+        addPerson: function() { this.data[this.activeId].participants.push({name:"", email:"", exclusions:[]}); this.renderRows(); this.save(); },
+        save: function() { localStorage.setItem('giftSwapDB_v16', JSON.stringify(this.data)); }
+    };
+    window.onload = () => app.init();
+</script>
+</body>
+</html>
