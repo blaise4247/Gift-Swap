@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GiftSwap | Central Group Hub</title>
+    <title>GiftSwap | Professional Central Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* --- STYLES (Retained from V16 for stability) --- */
-        :root { --bg: #FCFAFA; --card: #FFFFFF; --text: #2D2D2D; --primary: #D0312D; --secondary: #1A3C34; --border: #E5E5E5; --input-bg: #FFFFFF; }
-        [data-theme="dark-santa"] { --bg: #121212; --card: #1E1E1E; --text: #E0E0E0; --primary: #FF4545; --secondary: #00E676; --border: #333333; --input-bg: #2C2C2C; }
-        [data-theme="tropical"] { --bg: #E0F7FA; --card: #FFFFFF; --text: #006064; --primary: #FF7043; --secondary: #009688; --border: #B2DFDB; --input-bg: #FFFFFF; }
-        [data-theme="winter"] { --bg: #ECEFF1; --card: #FFFFFF; --text: #263238; --primary: #0288D1; --secondary: #546E7A; --border: #CFD8DC; --input-bg: #FAFAFA; }
+        :root { --bg: #FCFAFA; --card: #FFFFFF; --text: #2D2D2D; --primary: #D0312D; --secondary: #1A3C34; --border: #E5E5E5; --input-bg: #FFFFFF; --header-text: #888; }
+        [data-theme="dark-santa"] { --bg: #121212; --card: #1E1E1E; --text: #E0E0E0; --primary: #FF4545; --secondary: #00E676; --border: #333333; --input-bg: #2C2C2C; --header-text: #AAAAAA; }
+        [data-theme="tropical"] { --bg: #E0F7FA; --card: #FFFFFF; --text: #006064; --primary: #FF7043; --secondary: #009688; --border: #B2DFDB; --input-bg: #FFFFFF; --header-text: #00796B; }
+        [data-theme="winter"] { --bg: #ECEFF1; --card: #FFFFFF; --text: #263238; --primary: #0288D1; --secondary: #546E7A; --border: #CFD8DC; --input-bg: #FAFAFA; --header-text: #78909C; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; min-height: 100vh; display: flex; flex-direction: column; }
@@ -26,36 +25,36 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         
-        .hub-card { background: var(--card); border: 2px solid var(--primary); border-radius: 30px; padding: 40px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .hub-list { margin-top: 30px; text-align: left; }
-        .hub-item { background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+        .table-header { display: grid; grid-template-columns: 1.5fr 1.5fr 2.5fr 0.5fr; gap: 15px; margin-bottom: 15px; font-weight: 600; color: var(--header-text); font-size: 0.8rem; text-transform: uppercase; }
+        .p-row { display: grid; grid-template-columns: 1.5fr 1.5fr 2.5fr 0.5fr; gap: 15px; margin-bottom: 15px; align-items: start; }
+        input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); }
+        
+        .exclusion-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; max-height: 120px; overflow-y: auto; }
+        .exclusion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; }
 
+        .hub-card { background: var(--card); border: 2px solid var(--primary); border-radius: 30px; padding: 40px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .hub-item { background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
         .reveal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .reveal-box { background: var(--card); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; }
-
-        input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); }
-        .p-row { display: grid; grid-template-columns: 1fr 1fr 1.5fr 0.5fr; gap: 10px; margin-bottom: 10px; }
-        footer { padding: 20px; text-align: center; font-size: 0.8rem; opacity: 0.5; }
+        footer { padding: 20px; text-align: center; font-size: 0.8rem; opacity: 0.5; margin-top: auto; border-top: 1px solid var(--border); }
     </style>
 </head>
 <body data-theme="santa">
 
     <nav>
         <div class="logo" onclick="app.navigate('home')">GiftSwap</div>
-        <div style="display:flex; gap:15px; align-items:center;">
-            <select class="btn-outline" style="padding:5px 10px; border-radius:8px;" onchange="app.setTheme(this.value)">
-                <option value="santa">🎅 Santa</option>
-                <option value="dark-santa">🌙 Dark</option>
-                <option value="tropical">🏝️ Tropical</option>
-                <option value="winter">❄️ Winter</option>
-            </select>
-        </div>
+        <select class="btn-outline" style="padding:5px 10px; border-radius:8px;" onchange="app.setTheme(this.value)">
+            <option value="santa">🎅 Santa</option>
+            <option value="dark-santa">🌙 Dark</option>
+            <option value="tropical">🏝️ Tropical</option>
+            <option value="winter">❄️ Winter</option>
+        </select>
     </nav>
 
     <main>
         <section id="homeSection" class="active-section">
             <div style="text-align:center; margin-bottom:40px;">
-                <h1 style="font-size:2.5rem;">Group <span style="color:var(--primary)">Dashboard</span></h1>
+                <h1>Your <span style="color:var(--primary)">Secret Santa</span> Dashboard</h1>
                 <button class="btn btn-primary" onclick="app.createGroup()" style="margin-top:20px;">+ New Exchange</button>
             </div>
             <div id="groupsGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:20px;"></div>
@@ -64,38 +63,39 @@
         <section id="editorSection">
             <button class="btn btn-outline" onclick="app.navigate('home')" style="margin-bottom:20px;">← Back</button>
             <input type="text" id="groupName" style="font-size:2rem; font-weight:bold; border:none; border-bottom:2px solid var(--border); background:transparent; margin-bottom:10px;" placeholder="Group Name">
-            <input type="text" id="groupBudget" style="width:200px; margin-bottom:30px;" placeholder="Budget (e.g. $25)">
+            <div style="margin-bottom:30px;">
+                <span style="font-weight:600;">Budget: </span>
+                <input type="text" id="groupBudget" style="width:200px;" placeholder="e.g. $25">
+            </div>
             
+            <div class="table-header">
+                <div>Name</div><div>Email/Ref</div><div>Don't Pick...</div><div></div>
+            </div>
             <div id="rowsContainer"></div>
+            
             <div style="margin-top:20px; display:flex; gap:10px;">
-                <button class="btn btn-outline" onclick="app.addPerson()">+ Add Name</button>
-                <button class="btn btn-primary" style="flex:1" onclick="app.generateMasterHub()">Create Master Hub Link</button>
+                <button class="btn btn-outline" onclick="app.addPerson()">+ Add Person</button>
+                <button class="btn btn-primary" style="flex:1" onclick="app.generateMasterHub()">Create Group Hub Link</button>
             </div>
         </section>
 
         <section id="hubSection">
             <div class="hub-card">
-                <h2 id="hubGroupName" style="font-family:'Mountains of Christmas'; font-size:2rem; color:var(--primary);">Group Name</h2>
-                <p>Find your name below to see who you are buying for!</p>
-                <p style="font-weight:bold; margin-top:10px;">Budget: <span id="hubBudget"></span></p>
-                
-                <div id="hubList" class="hub-list"></div>
-                
-                <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
-                    <button class="btn btn-outline" onclick="location.href=location.pathname">Create Your Own Group</button>
-                </div>
+                <h2 id="hubGroupName" style="font-family:'Mountains of Christmas'; font-size:2.3rem; color:var(--primary);">Group Name</h2>
+                <p style="margin-bottom:10px;">Click your name to see your match!</p>
+                <p>Budget: <strong id="hubBudget"></strong></p>
+                <div id="hubList" style="margin-top:30px; text-align:left;"></div>
             </div>
         </section>
     </main>
 
     <div class="reveal-overlay" id="revealOverlay">
         <div class="reveal-box">
-            <h3 style="margin-bottom:10px;">Hi <span id="revealGiverName"></span>!</h3>
-            <p>You are the Secret Santa for:</p>
-            <h1 id="revealReceiverName" style="color:var(--primary); font-family:'Mountains of Christmas'; font-size:2.5rem; margin:15px 0;"></h1>
-            <a href="https://www.amazon.com" id="amzBtn" target="_blank" style="display:inline-block; background:#FF9900; padding:12px; border-radius:8px; color:black; font-weight:bold; text-decoration:none; margin-bottom:20px;">Shop for them on Amazon</a>
-            <br>
-            <button class="btn btn-outline" onclick="document.getElementById('revealOverlay').style.display='none'">Close</button>
+            <h3>Hi <span id="revGiver"></span>!</h3>
+            <p style="margin:10px 0;">You are buying for:</p>
+            <h1 id="revReceiver" style="color:var(--primary); font-family:'Mountains of Christmas'; font-size:2.5rem; margin-bottom:20px;"></h1>
+            <a href="#" id="amzBtn" target="_blank" style="display:inline-block; background:#FF9900; padding:12px 24px; border-radius:10px; color:black; font-weight:bold; text-decoration:none; margin-bottom:20px;">Find Gift Ideas</a>
+            <br><button class="btn btn-outline" onclick="document.getElementById('revealOverlay').style.display='none'">Close</button>
         </div>
     </div>
 
@@ -103,17 +103,15 @@
 
 <script>
     const app = {
-        data: JSON.parse(localStorage.getItem('giftSwapDB_v17')) || {},
+        data: JSON.parse(localStorage.getItem('giftSwap_HubDB')) || {},
         activeId: null,
 
         init: function() {
             const params = new URLSearchParams(window.location.search);
-            const hubData = params.get('hub');
-            if (hubData) this.handleHub(hubData);
-            else this.renderHome();
+            const hub = params.get('hub');
+            if (hub) this.handleHub(hub);
+            else { this.renderHome(); this.navigate('home'); }
         },
-
-        setTheme: function(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('theme', t); },
 
         navigate: function(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
@@ -121,81 +119,124 @@
             if(id === 'home') this.renderHome();
         },
 
+        setTheme: function(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('theme', t); },
+
         createGroup: function() {
             const id = 'g' + Date.now();
-            this.data[id] = { name: "", budget: "", participants: [{name:"", exclusions:[]},{name:"", exclusions:[]},{name:"", exclusions:[]}] };
-            this.activeId = id; this.navigate('editor'); this.renderRows();
+            this.data[id] = { name: "", budget: "", participants: [{name:"", email:"", exclusions:[]},{name:"", email:"", exclusions:[]},{name:"", email:"", exclusions:[]}] };
+            this.activeId = id; this.loadEditor();
+        },
+
+        loadEditor: function() {
+            this.navigate('editor');
+            document.getElementById('groupName').value = this.data[this.activeId].name;
+            document.getElementById('groupBudget').value = this.data[this.activeId].budget;
+            this.renderRows();
         },
 
         renderHome: function() {
             const grid = document.getElementById('groupsGrid'); grid.innerHTML = "";
             Object.keys(this.data).forEach(id => {
-                const card = document.createElement('div'); card.style.cssText = "background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border); cursor:pointer;";
-                card.innerHTML = `<h3>${this.data[id].name || "Untitled"}</h3><p>${this.data[id].participants.length} members</p>`;
-                card.onclick = () => { this.activeId = id; this.navigate('editor'); this.renderRows(); };
-                grid.appendChild(card);
+                const c = document.createElement('div'); c.className = 'group-card';
+                c.style.cssText = "background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border); cursor:pointer;";
+                c.innerHTML = `<h3>${this.data[id].name || "Untitled"}</h3><p>${this.data[id].participants.length} members</p>`;
+                c.onclick = () => { this.activeId = id; this.loadEditor(); };
+                grid.appendChild(c);
             });
-            this.navigate('home');
         },
 
         renderRows: function() {
             const c = document.getElementById('rowsContainer'); c.innerHTML = "";
-            this.data[this.activeId].participants.forEach((p, i) => {
+            const pp = this.data[this.activeId].participants;
+            pp.forEach((p, i) => {
                 const r = document.createElement('div'); r.className = 'p-row';
-                r.innerHTML = `<input type="text" value="${p.name}" placeholder="Name" oninput="app.data['${this.activeId}'].participants[${i}].name=this.value; app.save();">
-                               <button class="btn-outline" style="border-radius:8px;" onclick="app.data['${this.activeId}'].participants.splice(${i},1); app.renderRows();">×</button>`;
+                r.innerHTML = `
+                    <input type="text" value="${p.name}" placeholder="Name" oninput="app.updateP(${i}, 'name', this.value)" onblur="app.renderRows()">
+                    <input type="text" value="${p.email}" placeholder="Email/Ref" oninput="app.updateP(${i}, 'email', this.value)">
+                    <div class="exclusion-box" id="ex-${i}"></div>
+                    <button class="btn-outline" style="border-radius:8px;" onclick="app.data['${this.activeId}'].participants.splice(${i},1); app.renderRows();">×</button>`;
                 c.appendChild(r);
+                this.renderEx(i);
             });
         },
 
-        addPerson: function() { this.data[this.activeId].participants.push({name:"", exclusions:[]}); this.renderRows(); },
+        updateP: function(idx, field, val) {
+            this.data[this.activeId].participants[idx][field] = val;
+            this.data[this.activeId].name = document.getElementById('groupName').value;
+            this.data[this.activeId].budget = document.getElementById('groupBudget').value;
+            this.save();
+        },
+
+        renderEx: function(idx) {
+            const box = document.getElementById(`ex-${idx}`);
+            const pp = this.data[this.activeId].participants;
+            let html = '<div class="exclusion-grid">';
+            pp.forEach((other, j) => {
+                if (idx !== j && other.name.trim()) {
+                    const checked = pp[idx].exclusions.includes(other.name) ? 'checked' : '';
+                    html += `<label><input type="checkbox" ${checked} onchange="app.toggleEx(${idx}, '${other.name}')"> ${other.name}</label>`;
+                }
+            });
+            box.innerHTML = html + '</div>';
+        },
+
+        toggleEx: function(i, n) {
+            const p = this.data[this.activeId].participants[i];
+            if (p.exclusions.includes(n)) p.exclusions = p.exclusions.filter(ex => ex !== n);
+            else p.exclusions.push(n);
+            this.save();
+        },
+
+        addPerson: function() { this.data[this.activeId].participants.push({name:"", email:"", exclusions:[]}); this.renderRows(); },
 
         generateMasterHub: function() {
+            // Sync Meta Data one last time
+            this.data[this.activeId].name = document.getElementById('groupName').value;
+            this.data[this.activeId].budget = document.getElementById('groupBudget').value;
+            
             const group = this.data[this.activeId];
             const pp = group.participants.filter(p => p.name.trim());
-            if (pp.length < 3) return alert("Need 3 names!");
+            if (pp.length < 3) return alert("Min 3 names required!");
 
             let g = [...pp], r = [...pp], valid = false, att = 0;
-            while(!valid && att < 1000) {
+            while(!valid && att < 2000) {
                 att++; r.sort(() => Math.random() - 0.5);
-                valid = g.every((v, i) => v.name !== r[i].name);
+                valid = g.every((v, i) => v.name !== r[i].name && !v.exclusions.includes(r[i].name));
             }
+            if(!valid) return alert("Conflicts! Uncheck some boxes.");
 
             const payload = btoa(unescape(encodeURIComponent(JSON.stringify({
                 n: group.name, b: group.budget, m: g.map((v, i) => ({ g: v.name, r: r[i].name }))
             }))));
 
             const hubUrl = window.location.origin + window.location.pathname + "?hub=" + payload;
-            
-            // AUTOMATICALLY OPEN IN NEW TAB
-            window.open(hubUrl, '_blank');
-            
-            // Also copy to clipboard for convenience
             navigator.clipboard.writeText(hubUrl);
-            alert("Master Hub Link generated and copied! A new tab has opened so you can see it.");
+            alert("Hub Link Copied! Opening in new tab in 1.5 seconds...");
+            
+            // DELAYED OPENING
+            setTimeout(() => { window.open(hubUrl, '_blank'); }, 1500);
         },
 
         handleHub: function(encoded) {
             const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
             this.navigate('hub');
             document.getElementById('hubGroupName').innerText = data.n || "Secret Santa Hub";
-            document.getElementById('hubBudget').innerText = data.b || "No Budget Set";
-            
+            document.getElementById('hubBudget').innerText = data.b || "No Budget";
             const list = document.getElementById('hubList'); list.innerHTML = "";
             data.m.forEach(match => {
                 const item = document.createElement('div'); item.className = 'hub-item';
-                item.innerHTML = `<span><strong>${match.g}</strong></span><button class="btn btn-primary" style="padding:5px 15px; font-size:0.8rem;">Show My Match</button>`;
+                item.innerHTML = `<strong>${match.g}</strong> <button class="btn btn-primary" style="padding:5px 15px; font-size:0.8rem;">Who do I have?</button>`;
                 item.onclick = () => {
-                    document.getElementById('revealGiverName').innerText = match.g;
-                    document.getElementById('revealReceiverName').innerText = match.r;
-                    document.getElementById('amzBtn').href = `https://www.amazon.com/s?k=gifts+for+${encodeURIComponent(data.b || 'everyone')}`;
+                    document.getElementById('revGiver').innerText = match.g;
+                    document.getElementById('revReceiver').innerText = match.r;
+                    document.getElementById('amzBtn').href = `https://www.amazon.com/s?k=gifts+under+${encodeURIComponent(data.b || '25')}`;
                     document.getElementById('revealOverlay').style.display = 'flex';
                 };
                 list.appendChild(item);
             });
         },
 
-        save: function() { localStorage.setItem('giftSwapDB_v17', JSON.stringify(this.data)); }
+        save: function() { localStorage.setItem('giftSwap_HubDB', JSON.stringify(this.data)); }
     };
     window.onload = () => app.init();
 </script>
