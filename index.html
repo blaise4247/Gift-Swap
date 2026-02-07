@@ -40,13 +40,28 @@
         
         @media (max-width: 768px) { .p-row { grid-template-columns: 1fr; } }
 
+        /* HUB ITEM STYLE */
+        .hub-item { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .hub-item:hover { transform: scale(1.02); border-color: var(--primary); }
+
         footer { padding: 30px; text-align: center; font-size: 0.8rem; opacity: 0.5; border-top: 1px solid var(--border); margin-top: auto; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo" onclick="location.href = window.location.pathname">GiftSwap</div>
+        <div class="logo" onclick="location.reload()">GiftSwap</div>
         <div id="userDisplay" style="font-size: 0.9rem; font-weight: 600;"></div>
     </nav>
 
@@ -81,16 +96,17 @@
             <div id="rowsContainer"></div>
             <div style="margin-top: 20px; display: flex; gap: 10px;">
                 <button class="btn btn-outline" onclick="app.addRow()">+ Add Person</button>
-                <button class="btn btn-primary" style="flex:1" onclick="app.saveAndShare()">💾 Save & Share Hub Link</button>
+                <button class="btn btn-primary" style="flex:1" onclick="app.generateAndReveal()">🎲 Generate Matches</button>
             </div>
         </section>
 
         <section id="hubSection">
+            <button class="btn btn-outline" onclick="app.showSection('editor')" style="margin-bottom:20px;">← Back to Editor</button>
             <div class="auth-card" style="max-width: 600px;">
-                <h2 id="hubTitle" style="font-family:'Mountains of Christmas'; font-size: 2.5rem; color: var(--primary);">Loading...</h2>
+                <h2 id="hubTitle" style="font-family:'Mountains of Christmas'; font-size: 2.5rem; color: var(--primary);">Results</h2>
                 <p>Budget: <strong id="hubBudgetDisplay"></strong></p>
+                <p style="font-size: 0.9rem; opacity: 0.7; margin-top:10px;">Pass the device to each person. Click to reveal.</p>
                 <div id="hubList" style="margin-top: 30px; text-align: left;"></div>
-                <button class="btn btn-outline" onclick="app.showSection('login')" style="margin-top:30px;">Create Your Own Group</button>
             </div>
         </section>
     </main>
@@ -101,7 +117,7 @@
             <h1 id="revReceiver" style="font-family:'Mountains of Christmas'; font-size: 3.5rem; color: var(--primary); margin: 20px 0;"></h1>
             <p id="revWishlist" style="font-style: italic; opacity: 0.8; margin-bottom: 30px;"></p>
             <a href="#" id="amzBtn" target="_blank" style="display:inline-block; background:#FF9900; padding:12px 25px; border-radius:10px; color:black; font-weight:bold; text-decoration:none;">Shop on Amazon</a>
-            <br><button class="btn btn-outline" style="margin-top:30px; border-color:white; color:white;" onclick="document.getElementById('revealOverlay').style.display='none'">Close</button>
+            <br><button class="btn btn-outline" style="margin-top:30px; border-color:white; color:white;" onclick="document.getElementById('revealOverlay').style.display='none'">Close & Pass to Next Person</button>
         </div>
     </div>
 
@@ -135,15 +151,6 @@
             currentGroupId: null, 
 
             init: function() {
-                const params = new URLSearchParams(window.location.search);
-                const groupId = params.get('groupId');
-                
-                // If there is a groupId in the URL, load the Hub directly
-                if (groupId) {
-                    this.loadHubFromCloud(groupId);
-                    return; 
-                }
-
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         this.currentUser = user;
@@ -196,10 +203,11 @@
                         <div class="delete-btn" onclick="app.deleteGroup(event, '${docSnap.id}')">×</div>
                         <h3>${data.name}</h3>
                         <p>${data.participants ? data.participants.length : 0} Members</p>
+                        ${data.matches ? '<span style="font-size:0.8rem; color:green;">Matches Ready ✅</span>' : ''}
                     `;
                     card.onclick = (e) => {
                         if(e.target.classList.contains('delete-btn')) return;
-                        this.loadGroupIntoEditor(docSnap.id, data);
+                        this.openGroup(docSnap.id, data);
                     };
                     grid.appendChild(card);
                 });
@@ -224,11 +232,19 @@
                 this.showSection('editor');
             },
 
-            loadGroupIntoEditor: function(docId, data) {
+            openGroup: function(docId, data) {
                 this.currentGroupId = docId;
                 this.activeGroup = data;
-                this.renderEditor();
-                this.showSection('editor');
+                
+                // INTELLIGENT ROUTING:
+                // If matches exist, go straight to the Reveal Hub. 
+                // If not, go to Editor.
+                if(data.matches && data.matches.length > 0) {
+                    this.renderHub(data);
+                } else {
+                    this.renderEditor();
+                    this.showSection('editor');
+                }
             },
 
             renderEditor: function() {
@@ -284,8 +300,9 @@
                 this.renderEditor(); 
             },
 
-            saveAndShare: async function() {
-                // 1. Validate & Generate Matches Locally
+            // --- THE NEW GENERATE & REVEAL LOGIC ---
+            generateAndReveal: async function() {
+                // 1. Sync Inputs
                 this.activeGroup.name = document.getElementById('editGroupName').value;
                 this.activeGroup.budget = document.getElementById('editBudget').value;
                 const g = this.activeGroup;
@@ -293,14 +310,15 @@
                 
                 if(pp.length < 3) return alert("You need at least 3 participants!");
 
+                // 2. Calculate Matches
                 let buyers = [...pp], targets = [...pp], valid = false, att = 0;
                 while(!valid && att < 2000) {
                     att++; targets.sort(() => Math.random() - 0.5);
                     valid = buyers.every((b, i) => b.name !== targets[i].name && !b.exclusions.includes(targets[i].name));
                 }
-                if(!valid) return alert("Conflicts found! Please uncheck some exclusions.");
+                if(!valid) return alert("Conflicts found! Uncheck some exclusions.");
 
-                // 2. Prepare Data for Cloud (Store the matches in the DB, not the URL)
+                // 3. Prepare Data (with Matches)
                 const groupData = {
                     name: g.name,
                     budget: g.budget,
@@ -310,7 +328,7 @@
                     timestamp: Date.now()
                 };
 
-                // 3. Save to Firestore
+                // 4. Save to Cloud (So you can come back later)
                 try {
                     if (this.currentGroupId) {
                         await setDoc(doc(db, "groups", this.currentGroupId), groupData);
@@ -320,64 +338,33 @@
                     }
                 } catch (e) {
                     alert("Error saving: " + e.message);
-                    return;
                 }
 
-                // 4. Generate Short Link (Only contains the ID)
-                const shortUrl = window.location.origin + window.location.pathname + "?groupId=" + this.currentGroupId;
-
-                // 5. Share
-                if (navigator.share) {
-                    try {
-                        await navigator.share({ title: g.name, text: "Join our Secret Santa!", url: shortUrl });
-                    } catch (err) { this.copyFallback(shortUrl); }
-                } else {
-                    this.copyFallback(shortUrl);
-                }
+                // 5. IMMEDIATE SWITCH TO HUB (No links!)
+                this.activeGroup = groupData; // Update local state
+                this.renderHub(groupData);
             },
 
-            copyFallback: function(url) {
-                navigator.clipboard.writeText(url).then(() => {
-                    alert("Saved! Link copied to clipboard.");
-                });
-            },
-
-            // --- CLOUD HUB LOGIC ---
-            loadHubFromCloud: async function(groupId) {
+            renderHub: function(data) {
                 this.showSection('hub');
-                try {
-                    const docSnap = await getDoc(doc(db, "groups", groupId));
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        document.getElementById('hubTitle').innerText = data.name;
-                        document.getElementById('hubBudgetDisplay').innerText = data.budget;
-                        const list = document.getElementById('hubList');
-                        list.innerHTML = "";
+                document.getElementById('hubTitle').innerText = data.name;
+                document.getElementById('hubBudgetDisplay').innerText = data.budget;
+                const list = document.getElementById('hubList');
+                list.innerHTML = "";
 
-                        // Render the matches saved in the database
-                        if(data.matches) {
-                            data.matches.forEach(match => {
-                                const item = document.createElement('div');
-                                item.className = "group-card"; 
-                                item.style.marginBottom = "10px";
-                                item.innerHTML = `<strong>${match.g}</strong> <button class="btn btn-outline" style="float:right; padding:5px 10px; font-size:0.8rem;">Reveal Match</button>`;
-                                item.onclick = () => {
-                                    document.getElementById('revGiver').innerText = match.g;
-                                    document.getElementById('revReceiver').innerText = match.r;
-                                    document.getElementById('revWishlist').innerText = match.w ? `They want: ${match.w}` : "No wishlist provided.";
-                                    document.getElementById('amzBtn').href = `https://www.amazon.com/s?k=${encodeURIComponent(match.w || 'gifts under ' + data.budget)}`;
-                                    document.getElementById('revealOverlay').style.display = 'flex';
-                                }
-                                list.appendChild(item);
-                            });
-                        }
-                    } else {
-                        document.getElementById('hubTitle').innerText = "Group Not Found";
+                data.matches.forEach(match => {
+                    const item = document.createElement('div');
+                    item.className = "hub-item"; 
+                    item.innerHTML = `<strong>${match.g}</strong> <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem;">Reveal Match</button>`;
+                    item.onclick = () => {
+                        document.getElementById('revGiver').innerText = match.g;
+                        document.getElementById('revReceiver').innerText = match.r;
+                        document.getElementById('revWishlist').innerText = match.w ? `They want: ${match.w}` : "No wishlist provided.";
+                        document.getElementById('amzBtn').href = `https://www.amazon.com/s?k=${encodeURIComponent(match.w || 'gifts under ' + data.budget)}`;
+                        document.getElementById('revealOverlay').style.display = 'flex';
                     }
-                } catch(e) {
-                    console.error("Hub Error:", e);
-                    document.getElementById('hubTitle').innerText = "Error Loading Group";
-                }
+                    list.appendChild(item);
+                });
             }
         };
 
